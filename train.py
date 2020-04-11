@@ -1,7 +1,7 @@
 """
 Retrain the YOLO model for your own dataset.
 """
-
+import glob
 import numpy as np
 import tensorflow.keras.backend as K
 from keras.layers import Input, Lambda
@@ -18,6 +18,7 @@ import os
 import keras
 import tensorflow as tf
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
 DEPTH = 10
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -31,10 +32,13 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 #     return tf.compat.v1.Session(config=config)
 
 def return_annotations_lines(training_folder):
-    lines = []
+    output = []
     for file in glob.glob(training_folder+"*.csv"):
-        with open(annotation_path) as f:
-            line.append(f.readlines())
+        with open(file) as f:
+            lines = f.readlines()
+            for line in lines:
+                output.append(line.replace("\n", ""))
+    return output
 
 def _main():
     training_folder = 'csv_folder/train/'
@@ -139,7 +143,7 @@ def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze
     K.clear_session() # get a new session
     # tf.compat.v1.keras.backend.set_session(get_session())
     # keras.backend.tensorflow_backend.set_session(get_session())
-    image_input = Input(shape=(None, None, 10))
+    image_input = Input(shape=(None, None, DEPTH))
     h, w = input_shape
     num_anchors = len(anchors)
 
@@ -171,7 +175,7 @@ def create_tiny_model(input_shape, anchors, num_classes, load_pretrained=True, f
     K.clear_session() # get a new session
     # tf.compat.v1.keras.backend.set_session(get_session())
     # keras.backend.tensorflow_backend.set_session(get_session())
-    image_input = Input(shape=(None, None, 10))
+    image_input = Input(shape=(None, None, DEPTH))
     h, w = input_shape
     num_anchors = len(anchors)
 
